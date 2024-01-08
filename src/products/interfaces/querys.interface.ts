@@ -7,16 +7,21 @@ interface IWhereProducts {
 }
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
-interface whereCategoriandBrandId {
+interface WhereCategoriandBrandId {
   id: { [Op.not]: null } | { [Op.eq]: string } | object;
+}
+
+interface WhereInOrders {
+  state: { [Op.or]: { [Op.eq]: string }[] };
 }
 
 export interface IQuery {
   limit: number;
-  page: number;
+  page?: number;
   offset: number;
   order: string[][];
-  whereProduct: IWhereProducts;
-  whereCategoryId: whereCategoriandBrandId;
-  whereBrandId: whereCategoriandBrandId;
+  where?: WhereInOrders;
+  whereProduct?: IWhereProducts;
+  whereCategoryId?: WhereCategoriandBrandId;
+  whereBrandId?: WhereCategoriandBrandId;
 }

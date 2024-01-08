@@ -1,4 +1,4 @@
-import { Column, Model, Table } from 'sequelize-typescript';
+import { Column, DataType, Model, Table } from 'sequelize-typescript';
 
 export enum PaymentState {
   SUCCESS = 'PAGO',
@@ -14,6 +14,8 @@ export enum PaymentState {
 })
 export class Payment extends Model<Payment> {
   @Column({
+    type: DataType.STRING,
+    defaultValue: DataType.UUIDV4,
     primaryKey: true,
     allowNull: false,
   })

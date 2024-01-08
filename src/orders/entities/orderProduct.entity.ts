@@ -33,12 +33,14 @@ export class OrderProduct extends Model<OrderProduct> {
 
   @ForeignKey(() => Order)
   @Column({
+    type: DataType.UUIDV4,
     allowNull: false,
   })
   orderId: string;
 
   @ForeignKey(() => Product)
   @Column({
+    type: DataType.UUIDV4,
     allowNull: false,
   })
   productId: string;

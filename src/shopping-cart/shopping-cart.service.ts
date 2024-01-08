@@ -10,7 +10,7 @@ import {
 import { Product, StateProduct } from '../products/entities/product.entity';
 import { CartProduct } from './entities/cart-product.entity';
 import { ShoppingCart } from './entities/shopping-cart.entity';
-import { Transaction } from 'sequelize';
+import { FindOptions, Transaction } from 'sequelize';
 import { UsersService } from '../users/users.service';
 import { User } from '../users/entities/user.entity';
 import { ProductsService } from 'src/products/products.service';
@@ -342,5 +342,40 @@ export class ShoppingCartService {
         );
       }
     }
+  }
+
+  public async getCartProductsForNewOrder(
+    options: FindOptions,
+    products: Product[],
+  ) {
+    const genericCartPRoducts = await this.cartProductModel.findAll(options);
+    console.log(2);
+    const productsResponse = [];
+    for (const thisCart of genericCartPRoducts) {
+      const thisProduct = products.find(
+        (product) =>
+          product.id == thisCart.productId &&
+          product.state == StateProduct.Active &&
+          thisCart.amount <= product.stock,
+      );
+      if (!thisProduct)
+        throw new BadRequestException(
+          'Comprueba la cantidad de productos con el stock disponible y verifique si está "Activo" antes de generar una Orden',
+        );
+      productsResponse.push({
+        id: thisProduct.id,
+        price: thisProduct.price,
+        amount: thisCart.amount,
+        subTotal: thisProduct.price * thisCart.amount,
+      });
+    }
+
+    return {
+      total: productsResponse.reduce(
+        (sum, product) => sum + product.subTotal,
+        0,
+      ),
+      products: productsResponse,
+    };
   }
 }

@@ -1,4 +1,5 @@
 import {
+  AllowNull,
   BelongsTo,
   BelongsToMany,
   Column,
@@ -10,6 +11,7 @@ import {
 import { Product } from '../../products/entities/product.entity';
 import { OrderProduct } from './orderProduct.entity';
 import { User } from '../../users/entities/user.entity';
+import { Direction } from 'src/directions/entities/direction.entity';
 
 export enum OrderStateEnum {
   APROBADO = 'APROBADO',
@@ -48,6 +50,12 @@ export class Order extends Model<Order> {
   })
   state: OrderStateEnum;
 
+  @Column({
+    type: DataType.TEXT,
+    allowNull: true,
+  })
+  comment?: string;
+
   @BelongsToMany(() => Product, () => OrderProduct)
   products: Product[];
 
@@ -60,4 +68,14 @@ export class Order extends Model<Order> {
 
   @BelongsTo(() => User)
   user: User;
+
+  @ForeignKey(() => Direction)
+  @Column({
+    type: DataType.UUID,
+    allowNull: false,
+  })
+  directionId: string;
+
+  @BelongsTo(() => Direction)
+  direction: Direction;
 }

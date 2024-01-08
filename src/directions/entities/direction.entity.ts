@@ -5,8 +5,10 @@ import {
   Table,
   BelongsTo,
   ForeignKey,
+  HasMany,
 } from 'sequelize-typescript';
 import { User } from '../../users/entities/user.entity';
+import { Order } from 'src/orders/entities/order.entity';
 @Table({
   tableName: 'Directions',
   timestamps: true,
@@ -45,6 +47,9 @@ export class Direction extends Model<Direction> {
     allowNull: false,
   })
   calle: string;
+
+  @HasMany(() => Order)
+  orders: Order[];
 
   @ForeignKey(() => User)
   @Column({
