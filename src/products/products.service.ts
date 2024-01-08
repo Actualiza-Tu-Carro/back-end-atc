@@ -7,7 +7,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { QueryProductsDto } from './dto/query-product.dto';
-import { FindOptions, Op } from 'sequelize';
+import { FindOptions, Op, Sequelize } from 'sequelize';
 import { Brand } from 'src/brands/entities/brand.entity';
 import { Categories } from 'src/categories/entities/category.entity';
 import { Product } from './entities/product.entity';
@@ -29,6 +29,8 @@ enum EModelsTable {
 import { UserProductFav } from 'src/orders/entities/userProductFav.entity';
 import { InjectModel } from '@nestjs/sequelize';
 import { FavProduct } from 'src/orders/entities/favProduct.entity';
+import { miCache } from 'src/utils/nodeCache/nodeCache';
+import { BrandsService } from 'src/brands/brands.service';
 
 @Injectable()
 export class ProductsService {
@@ -37,6 +39,8 @@ export class ProductsService {
     private adminProductsService: AdminProductsService,
     @Inject(forwardRef(() => ShoppingCartService))
     private shoppingCartService: ShoppingCartService,
+    @Inject(forwardRef(() => BrandsService))
+    private brandsService: BrandsService,
     @InjectModel(FavProduct)
     private FavProductModel: typeof FavProduct,
     @InjectModel(UserProductFav)
@@ -46,7 +50,15 @@ export class ProductsService {
   async getQueryDB(query: QueryProductsDto): Promise<IQuery> {
     const limit = parseInt(query.limit);
     const page = parseInt(query.page);
-
+    let allBrands;
+    if (query.brandId) {
+      allBrands = miCache.get('AllBrands_Id');
+      if (allBrands) null;
+      else {
+        await this.brandsService.postInCacheData();
+        allBrands = miCache.get('AllBrands_Id');
+      }
+    }
     const querys = {
       limit,
       page,
@@ -54,7 +66,7 @@ export class ProductsService {
       order: [],
       whereProduct: { id: { [Op.not]: null } },
       whereCategoryId: { id: {} },
-      whereBrandId: { id: {} },
+      whereBrandId: {},
     };
 
     if (query.name)
@@ -65,7 +77,7 @@ export class ProductsService {
     if (query.order) {
       const thisOrder = query.order.split(' ');
       if (thisOrder[0] === 'NOMBRE') {
-        querys.order.push(['title', thisOrder[1]]);
+        querys.order.push([Sequelize.literal('LEFT("title",3)'), thisOrder[1]]);
       }
       if (thisOrder[0] === 'PRECIO') {
         querys.order.push(['price', thisOrder[1]]);
@@ -77,9 +89,12 @@ export class ProductsService {
       querys.whereCategoryId.id = { [Op.not]: null };
     }
     if (query.brandId) {
-      querys.whereBrandId.id = { [Op.eq]: query.brandId };
+      querys.whereBrandId[Op.or] = [
+        { id: { [Op.eq]: query.brandId } },
+        { id: { [Op.eq]: allBrands } },
+      ];
     } else {
-      querys.whereBrandId.id = { [Op.not]: null };
+      querys.whereBrandId['id'] = { [Op.not]: null };
     }
 
     return querys;
@@ -100,6 +115,7 @@ export class ProductsService {
       limit,
       offset,
       order,
+      subQuery: false,
       attributes: [
         'id',
         'title',

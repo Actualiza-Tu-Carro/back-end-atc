@@ -4,6 +4,7 @@ import {
   IsOptional,
   IsEnum,
   IsString,
+  IsUUID,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { StateProduct } from '../entities/product.entity';
@@ -44,10 +45,12 @@ export class QueryProductsDto {
 
   @IsOptional()
   @IsString({ message: 'El ID de categoría debe ser una cadena de texto' })
+  @IsUUID('4', { message: '$property debe ser un Id' })
   @ApiProperty({ description: 'ID de categoría' })
   categoryId?: string;
 
   @IsOptional()
+  @IsUUID('4', { message: '$property debe ser un Id' })
   @IsString({ message: 'El ID de marca debe ser una cadena de texto' })
   @ApiProperty({ description: 'ID de marca' })
   brandId?: string;

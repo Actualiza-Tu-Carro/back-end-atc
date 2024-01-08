@@ -25,12 +25,9 @@ export class ReviewsService {
     @Inject(forwardRef(() => UsersService))
     private userService: UsersService,
     private sequelize: Sequelize,
-  ) { }
+  ) {}
 
-  async create(
-    id: string,
-    createReviewDto: CreateReviewDto,
-  ): Promise<IReview> {
+  async create(id: string, createReviewDto: CreateReviewDto): Promise<IReview> {
     const transaction: Transaction = await this.sequelize.transaction();
     try {
       const user = await this.userService.findByPkGenericUser(id, {
@@ -82,9 +79,7 @@ export class ReviewsService {
     }
   }
 
-  async update(
-    updateReviewDto: UpdateReviewDto,
-  ): Promise<IReview> {
+  async update(updateReviewDto: UpdateReviewDto): Promise<IReview> {
     try {
       //Update
       const count = await this.reviewModel.update(updateReviewDto, {

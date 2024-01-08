@@ -9,6 +9,7 @@ import { AdminProductsModule } from 'src/admin-products/admin-products.module';
 import { ShoppingCartModule } from 'src/shopping-cart/shopping-cart.module';
 import { UserProductFav } from 'src/orders/entities/userProductFav.entity';
 import { FavProduct } from 'src/orders/entities/favProduct.entity';
+import { BrandsModule } from 'src/brands/brands.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { FavProduct } from 'src/orders/entities/favProduct.entity';
     ]),
     forwardRef(() => AdminProductsModule),
     forwardRef(() => ShoppingCartModule),
+    forwardRef(() => BrandsModule),
   ],
   controllers: [ProductsController],
   providers: [ProductsService],

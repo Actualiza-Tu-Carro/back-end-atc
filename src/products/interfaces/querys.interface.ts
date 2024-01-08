@@ -8,7 +8,8 @@ interface IWhereProducts {
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 interface whereCategoriandBrandId {
-  id: { [Op.not]: null } | { [Op.eq]: string } | object;
+  id?: { [Op.not]: null } | { [Op.eq]: string } | object;
+  [Op.or]?: [{ id: { [Op.eq]: string } }, { id: { [Op.eq]: string } }];
 }
 
 export interface IQuery {
